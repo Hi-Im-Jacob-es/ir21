@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Partnerzy roamingowi</title>
+  <style>
+    :root {
+      --tlo: #f4f6f8;
+      --karta: #ffffff;
+      --tekst: #1f2933;
+      --szary: #6b7785;
+      --linia: #dde3e9;
+      --akcent: #1f6feb;
+      --zielony: #1a7f37;
+      --czerwony: #c62828;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--tlo);
+      color: var(--tekst);
+    }
+    main { max-width: 900px; margin: 0 auto; padding: 32px 16px; }
+    h1 { margin: 0 0 4px; font-size: 1.6rem; }
+    .podtytul { margin: 0 0 24px; color: var(--szary); }
+    .karta {
+      background: var(--karta);
+      border: 1px solid var(--linia);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    h2 { margin: 0 0 14px; font-size: 1.1rem; }
+
+    /* formularz dodawania */
+    form { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+    label { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; color: var(--szary); }
+    input {
+      padding: 8px 10px;
+      border: 1px solid var(--linia);
+      border-radius: 6px;
+      font: inherit;
+      color: var(--tekst);
+      min-width: 180px;
+    }
+    input:focus { outline: 2px solid var(--akcent); border-color: transparent; }
+
+    button {
+      padding: 8px 14px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      font: inherit;
+      cursor: pointer;
+    }
+    .glowny { background: var(--akcent); color: #fff; }
+    .glowny:hover { filter: brightness(1.1); }
+    .zwykly { background: #fff; border-color: var(--linia); color: var(--tekst); }
+    .zwykly:hover { background: var(--tlo); }
+    .usun { background: #fff; border-color: #f0c4c4; color: var(--czerwony); }
+    .usun:hover { background: #fdecec; }
+
+    /* tabela */
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--linia); }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: var(--szary); }
+    td.akcje { text-align: right; white-space: nowrap; }
+    td.akcje button { margin-left: 6px; }
+    .pusto { color: var(--szary); text-align: center; padding: 24px; }
+    code { font-family: ui-monospace, Consolas, monospace; }
+
+    /* komunikat po akcji */
+    #komunikat { min-height: 24px; margin: 0 0 16px; font-weight: 500; }
+    #komunikat.ok { color: var(--zielony); }
+    #komunikat.blad { color: var(--czerwony); }
+
+    /* log zapytań — podgląd tego, co frontend wysyła do backendu */
+    #log { list-style: none; margin: 0; padding: 0; font-family: ui-monospace, Consolas, monospace; font-size: .85rem; }
+    #log li { padding: 4px 0; border-bottom: 1px dashed var(--linia); }
+    .metoda { display: inline-block; width: 64px; font-weight: 700; }
+    .GET { color: #1f6feb; } .POST { color: #1a7f37; } .PUT { color: #b26a00; } .DELETE { color: #c62828; }
+    .status-ok { color: var(--zielony); } .status-blad { color: var(--czerwony); }
+
+    @media (max-width: 600px) {
+      input { min-width: 0; width: 100%; }
+      label { width: 100%; }
+      th:first-child, td:first-child { display: none; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Partnerzy roamingowi</h1>
+  <p class="podtytul">Frontend do API <code>/api/partners</code></p>
+
+  <p id="komunikat"></p>
+
+  <section class="karta">
+    <h2>Dodaj partnera</h2>
+    <form id="formularz">
+      <label>Nazwa
+        <input id="nazwa" required placeholder="np. Vodafone DE">
+      </label>
+      <label>MCC-MNC
+        <input id="mccMnc" required pattern="\d{5,6}" title="5 lub 6 cyfr" placeholder="np. 26202">
+      </label>
+      <button type="submit" class="glowny">Dodaj</button>
+    </form>
+  </section>
+
+  <section class="karta">
+    <h2>Lista partnerów</h2>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Nazwa</th><th>MCC-MNC</th><th></th></tr>
+      </thead>
+      <tbody id="tabela"></tbody>
+    </table>
+  </section>
+
+  <section class="karta">
+    <h2>Zapytania do backendu</h2>
+    <ul id="log"></ul>
+  </section>
+</main>
+
+<script>
+  const API = "/api/partners";
+
+  // Teksty błędów, gdy backend nie przyśle własnego komunikatu
+  const OPISY_BLEDOW = {
+    404: "Nie znaleziono partnera.",
+    409: "Partner o tym MCC-MNC już istnieje.",
+    400: "Niepoprawne dane."
+  };
+
+  // ---------- Komunikacja z backendem ----------
+
+  // Jedna funkcja do wszystkich zapytań: wysyła, zapisuje w logu, obsługuje błędy
+  async function zapytanie(metoda, adres, dane) {
+    const opcje = { method: metoda, headers: {} };
+    if (dane) {
+      opcje.headers["Content-Type"] = "application/json";
+      opcje.body = JSON.stringify(dane);
+    }
+
+    const odpowiedz = await fetch(adres, opcje);
+    dopiszDoLogu(metoda, adres, odpowiedz.status);
+
+    if (!odpowiedz.ok) {
+      let tekst = OPISY_BLEDOW[odpowiedz.status] || "Błąd " + odpowiedz.status;
+      try {
+        const blad = await odpowiedz.json();
+        if (blad.message) tekst = blad.message;  // gdy włączone server.error.include-message
+      } catch (e) { /* odpowiedź bez JSON-a */ }
+      throw new Error(tekst);
+    }
+
+    // 204 No Content (DELETE) nie ma treści
+    return odpowiedz.status === 204 ? null : odpowiedz.json();
+  }
+
+  // ---------- Operacje CRUD ----------
+
+  async function wczytajListe() {
+    const partnerzy = await zapytanie("GET", API);
+    pokazTabele(partnerzy);
+  }
+
+  async function dodaj(nazwa, mccMnc) {
+    const nowy = await zapytanie("POST", API, { name: nazwa, mccMnc: mccMnc });
+    pokazKomunikat(`Dodano: ${nowy.name} (id ${nowy.id})`, true);
+    await wczytajListe();
+  }
+
+  async function zmienNazwe(mccMnc, nowaNazwa) {
+    await zapytanie("PUT", `${API}/${mccMnc}`, { name: nowaNazwa, mccMnc: mccMnc });
+    pokazKomunikat(`Zmieniono nazwę na: ${nowaNazwa}`, true);
+    await wczytajListe();
+  }
+
+  async function usun(mccMnc, nazwa) {
+    if (!confirm(`Usunąć partnera ${nazwa}?`)) return;
+    await zapytanie("DELETE", `${API}/${mccMnc}`);
+    pokazKomunikat(`Usunięto: ${nazwa}`, true);
+    await wczytajListe();
+  }
+
+  // ---------- Wyświetlanie ----------
+
+  function pokazTabele(partnerzy) {
+    const tabela = document.getElementById("tabela");
+    tabela.innerHTML = "";
+
+    if (partnerzy.length === 0) {
+      tabela.innerHTML = `<tr><td colspan="4" class="pusto">Brak partnerów</td></tr>`;
+      return;
+    }
+
+    for (const p of partnerzy) {
+      const wiersz = document.createElement("tr");
+      wiersz.innerHTML = `
+        <td>${p.id}</td>
+        <td class="nazwa"></td>
+        <td><code></code></td>
+        <td class="akcje">
+          <button class="zwykly edytuj">Edytuj</button>
+          <button class="usun">Usuń</button>
+        </td>`;
+      // textContent zamiast innerHTML: tekst z bazy nie jest wykonywany jako HTML
+      wiersz.querySelector(".nazwa").textContent = p.name;
+      wiersz.querySelector("code").textContent = p.mccMnc;
+
+      wiersz.querySelector(".edytuj").onclick = () => trybEdycji(wiersz, p);
+      wiersz.querySelector(".usun").onclick = () => obsluz(() => usun(p.mccMnc, p.name));
+      tabela.appendChild(wiersz);
+    }
+  }
+
+  // Zamienia komórkę z nazwą na pole tekstowe z przyciskami Zapisz / Anuluj
+  function trybEdycji(wiersz, partner) {
+    const komorka = wiersz.querySelector(".nazwa");
+    const akcje = wiersz.querySelector(".akcje");
+
+    komorka.innerHTML = `<input>`;
+    const pole = komorka.querySelector("input");
+    pole.value = partner.name;
+    pole.focus();
+
+    akcje.innerHTML = `
+      <button class="glowny zapisz">Zapisz</button>
+      <button class="zwykly anuluj">Anuluj</button>`;
+
+    const zapisz = () => obsluz(() => zmienNazwe(partner.mccMnc, pole.value.trim()));
+    akcje.querySelector(".zapisz").onclick = zapisz;
+    akcje.querySelector(".anuluj").onclick = () => obsluz(wczytajListe);
+    pole.onkeydown = (e) => {
+      if (e.key === "Enter") zapisz();
+      if (e.key === "Escape") obsluz(wczytajListe);
+    };
+  }
+
+  function pokazKomunikat(tekst, sukces) {
+    const el = document.getElementById("komunikat");
+    el.textContent = tekst;
+    el.className = sukces ? "ok" : "blad";
+  }
+
+  function dopiszDoLogu(metoda, adres, status) {
+    const li = document.createElement("li");
+    const godzina = new Date().toLocaleTimeString("pl-PL");
+    const klasa = status < 400 ? "status-ok" : "status-blad";
+    li.innerHTML = `${godzina} <span class="metoda ${metoda}">${metoda}</span>${adres} → <span class="${klasa}">${status}</span>`;
+    document.getElementById("log").prepend(li);
+  }
+
+  // Wywołuje akcję i pokazuje błąd zamiast "cichej" awarii
+  async function obsluz(akcja) {
+    try {
+      await akcja();
+    } catch (e) {
+      pokazKomunikat(e.message === "Failed to fetch"
+        ? "Brak połączenia z backendem. Czy aplikacja Spring działa?"
+        : e.message, false);
+    }
+  }
+
+  // ---------- Start ----------
+
+  document.getElementById("formularz").onsubmit = (e) => {
+    e.preventDefault();  // bez tego przeglądarka przeładowałaby stronę
+    const nazwa = document.getElementById("nazwa");
+    const mccMnc = document.getElementById("mccMnc");
+    obsluz(async () => {
+      await dodaj(nazwa.value.trim(), mccMnc.value.trim());
+      e.target.reset();
+    });
+  };
+
+  obsluz(wczytajListe);
+</script>
+</body>
+</html>

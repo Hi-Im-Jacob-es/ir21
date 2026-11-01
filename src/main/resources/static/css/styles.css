@@ -1,0 +1,202 @@
+:root {
+  --tlo: #f4f6f8;
+  --karta: #ffffff;
+  --tekst: #1f2933;
+  --szary: #6b7785;
+  --linia: #dde3e9;
+  --akcent: #1f6feb;
+  --zielony: #1a7f37;
+  --czerwony: #c62828;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  background: var(--tlo);
+  color: var(--tekst);
+}
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+h1 {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+}
+.podtytul {
+  margin: 0 0 24px;
+  color: var(--szary);
+}
+.karta {
+  background: var(--karta);
+  border: 1px solid var(--linia);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+h2 {
+  margin: 0 0 14px;
+  font-size: 1.1rem;
+}
+
+/* formularz dodawania */
+form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--szary);
+}
+input {
+  padding: 8px 10px;
+  border: 1px solid var(--linia);
+  border-radius: 6px;
+  font: inherit;
+  color: var(--tekst);
+  min-width: 180px;
+}
+input:focus {
+  outline: 2px solid var(--akcent);
+  border-color: transparent;
+}
+
+button {
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font: inherit;
+  cursor: pointer;
+}
+.glowny {
+  background: var(--akcent);
+  color: #fff;
+}
+.glowny:hover {
+  filter: brightness(1.1);
+}
+.zwykly {
+  background: #fff;
+  border-color: var(--linia);
+  color: var(--tekst);
+}
+.zwykly:hover {
+  background: var(--tlo);
+}
+.usun {
+  background: #fff;
+  border-color: #f0c4c4;
+  color: var(--czerwony);
+}
+.usun:hover {
+  background: #fdecec;
+}
+
+/* tabela */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--linia);
+}
+th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--szary);
+}
+td.akcje {
+  text-align: right;
+  white-space: nowrap;
+}
+td.akcje button {
+  margin-left: 6px;
+}
+.pusto {
+  color: var(--szary);
+  text-align: center;
+  padding: 24px;
+}
+code {
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+/* komunikat po akcji */
+#komunikat {
+  min-height: 24px;
+  margin: 0 0 16px;
+  font-weight: 500;
+}
+#komunikat.ok {
+  color: var(--zielony);
+}
+#komunikat.blad {
+  color: var(--czerwony);
+}
+
+/* log zapytań — podgląd tego, co frontend wysyła do backendu */
+#log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.85rem;
+}
+#log li {
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--linia);
+}
+.metoda {
+  display: inline-block;
+  width: 64px;
+  font-weight: 700;
+}
+.GET {
+  color: #1f6feb;
+}
+.POST {
+  color: #1a7f37;
+}
+.PUT {
+  color: #b26a00;
+}
+.DELETE {
+  color: #c62828;
+}
+.status-ok {
+  color: var(--zielony);
+}
+.status-blad {
+  color: var(--czerwony);
+}
+
+@media (max-width: 600px) {
+  input {
+    min-width: 0;
+    width: 100%;
+  }
+  label {
+    width: 100%;
+  }
+  th:first-child,
+  td:first-child {
+    display: none;
+  }
+}

@@ -22,6 +22,17 @@ public class PartnerController {
         this.service = service;
     }
 
+    @GetMapping("/{mccMnc}/contacts")
+    public List<Contact> contacts(@PathVariable String mccMnc) {
+        return service.getContacts(mccMnc);
+    }
+
+    @PostMapping("/{mccMnc}/contacts")
+    @ResponseStatus (HttpStatus.CREATED)
+    public Contact addContact(@PathVariable String mccMnc, @RequestBody ContactRequest req) {
+        return service.addContact(mccMnc, req);
+    }
+
     @GetMapping
     public List<Partner> all() {
         return service.getAll();
@@ -48,4 +59,6 @@ public class PartnerController {
     public Partner update(@PathVariable String mccMnc, @RequestBody PartnerRequest req) {
         return service.update(mccMnc, req);
     }
+
+    
 }

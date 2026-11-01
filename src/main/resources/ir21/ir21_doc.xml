@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PRZYKŁADOWY, UPROSZCZONY dokument w stylu IR.21 do nauki i testów importu.
+  To NIE jest oficjalny schemat GSMA RAEX IR.21 — struktura jest uproszczona.
+  Wszystkie dane są fikcyjne:
+    - MCC-MNC 001-01 to sieć testowa (ITU),
+    - numery z kodem kraju 999 są zarezerwowane,
+    - adresy IP pochodzą z puli dokumentacyjnych (RFC 5737),
+    - domeny i e-maile to example.com.
+-->
+<ir21 version="15.0" documentId="IR21-ZZZTE-2026-03">
+
+  <!-- ========== 1. Nagłówek dokumentu ========== -->
+  <header>
+    <issueDate>2026-10-15</issueDate>
+    <effectiveDate>2026-12-01</effectiveDate>
+    <description>Zmiana zakresu GT dla SMSC oraz nowy adres DEA</description>
+  </header>
+
+  <!-- ========== 2. Dane organizacyjne ========== -->
+  <organisation>
+    <name>Testowy Operator Sp. z o.o.</name>
+    <country>Testland</country>
+    <tadigCode>ZZZTE</tadigCode>
+    <networks>
+      <network>
+        <name>TESTNET</name>
+        <mcc>001</mcc>
+        <mnc>01</mnc>
+        <technologies>
+          <technology>GSM</technology>
+          <technology>UMTS</technology>
+          <technology>LTE</technology>
+          <technology>NR-SA</technology>
+        </technologies>
+      </network>
+    </networks>
+  </organisation>
+
+  <!-- ========== 3. Kontakty ========== -->
+  <contacts>
+    <contact type="ROAMING_COORDINATOR">
+      <name>Anna Kowalska</name>
+      <email>roaming@example.com</email>
+      <phone>+999 100 200 300</phone>
+    </contact>
+    <contact type="NOC_24x7">
+      <name>Network Operations Center</name>
+      <email>noc@example.com</email>
+      <phone>+999 100 200 999</phone>
+      <available>24/7</available>
+    </contact>
+    <contact type="ESCALATION">
+      <name>Piotr Nowak</name>
+      <email>noc-escalation@example.com</email>
+      <phone>+999 100 200 400</phone>
+    </contact>
+    <contact type="IREG_TESTING">
+      <name>Zespół testów roamingowych</name>
+      <email>ireg@example.com</email>
+    </contact>
+    <contact type="FRAUD">
+      <name>Dział bezpieczeństwa</name>
+      <email>fraud@example.com</email>
+      <phone>+999 100 200 500</phone>
+    </contact>
+  </contacts>
+
+  <!-- ========== 4. Numeracja ========== -->
+  <numbering>
+    <!-- E.164: numery MSISDN abonentów -->
+    <e164Ranges>
+      <range cc="999" ndc="50" from="5000000" to="5999999"/>
+      <range cc="999" ndc="51" from="1000000" to="1999999"/>
+    </e164Ranges>
+    <!-- E.212: IMSI -->
+    <e212Ranges>
+      <range mcc="001" mnc="01" msinFrom="0000000000" msinTo="9999999999"/>
+    </e212Ranges>
+    <!-- E.214: Mobile Global Title -->
+    <e214>
+      <mgt cc="999" nc="59"/>
+    </e214>
+  </numbering>
+
+  <!-- ========== 5. Global Titles węzłów sieci ========== -->
+  <networkElements>
+    <element type="HLR" name="HLR01">
+      <gtRange from="999500000100" to="999500000109"/>
+    </element>
+    <element type="HLR" name="HLR02">
+      <gtRange from="999500000110" to="999500000119"/>
+    </element>
+    <element type="MSC_VLR" name="MSC-CENTRAL">
+      <gtRange from="999500000200" to="999500000209"/>
+    </element>
+    <element type="MSC_VLR" name="MSC-SOUTH">
+      <gtRange from="999500000210" to="999500000219"/>
+    </element>
+    <element type="SMSC" name="SMSC01">
+      <gtRange from="999500000300" to="999500000304"/>
+    </element>
+    <element type="SGSN" name="SGSN01">
+      <gtRange from="999500000400" to="999500000404"/>
+    </element>
+  </networkElements>
+
+  <!-- ========== 6. Sygnalizacja SS7 ========== -->
+  <signalling>
+    <internationalSpc>2-123-4</internationalSpc>
+    <sccpCarriers>
+      <carrier name="Carrier Alpha" primary="true"/>
+      <carrier name="Carrier Beta" primary="false"/>
+    </sccpCarriers>
+    <mapVersions>
+      <applicationContext name="networkLocUp" version="3"/>
+      <applicationContext name="shortMsgMT-Relay" version="3"/>
+      <applicationContext name="subscriberDataMngt" version="3"/>
+      <applicationContext name="networkUnstructuredSs" version="2"/>
+    </mapVersions>
+    <camelPhase>4</camelPhase>
+  </signalling>
+
+  <!-- ========== 7. Transmisja danych (GRX/IPX) ========== -->
+  <packetData>
+    <ipxProviders>
+      <provider name="IPX Provider One" primary="true"/>
+      <provider name="IPX Provider Two" primary="false"/>
+    </ipxProviders>
+    <asNumbers>
+      <asn>64512</asn>
+    </asNumbers>
+    <ipRanges>
+      <range cidr="192.0.2.0/24" usage="GTP"/>
+      <range cidr="198.51.100.0/25" usage="DNS"/>
+      <range cidr="203.0.113.0/26" usage="DIAMETER"/>
+    </ipRanges>
+    <dnsServers>
+      <server ip="198.51.100.10"/>
+      <server ip="198.51.100.11"/>
+    </dnsServers>
+    <apnOperatorIdentifier>mnc001.mcc001.gprs</apnOperatorIdentifier>
+    <apns>
+      <apn name="internet" test="false"/>
+      <apn name="ims" test="false"/>
+      <apn name="test.roaming" test="true"/>
+    </apns>
+    <gtpVersions>
+      <version>GTPv1</version>
+      <version>GTPv2</version>
+    </gtpVersions>
+  </packetData>
+
+  <!-- ========== 8. LTE / Diameter ========== -->
+  <lte>
+    <diameterRealm>epc.mnc001.mcc001.3gppnetwork.org</diameterRealm>
+    <deaHosts>
+      <host fqdn="dea01.epc.mnc001.mcc001.3gppnetwork.org" ip="203.0.113.10"/>
+      <host fqdn="dea02.epc.mnc001.mcc001.3gppnetwork.org" ip="203.0.113.11"/>
+    </deaHosts>
+    <interfaces>
+      <interface name="S6a" supported="true"/>
+      <interface name="S8" supported="true"/>
+      <interface name="S9" supported="false"/>
+    </interfaces>
+  </lte>
+
+  <!-- ========== 9. VoLTE / IMS ========== -->
+  <ims>
+    <volteRoaming>true</volteRoaming>
+    <architecture>S8HR</architecture>
+    <imsDomain>ims.mnc001.mcc001.3gppnetwork.org</imsDomain>
+  </ims>
+
+  <!-- ========== 10. 5G SA ========== -->
+  <nr5g>
+    <seppFqdn>sepp01.5gc.mnc001.mcc001.3gppnetwork.org</seppFqdn>
+  </nr5g>
+
+  <!-- ========== 11. Historia zmian ========== -->
+  <changeHistory>
+    <change version="15.0" date="2026-10-15">
+      <section>networkElements</section>
+      <description>Nowy zakres GT dla SMSC01</description>
+    </change>
+    <change version="15.0" date="2026-10-15">
+      <section>lte</section>
+      <description>Dodano drugi węzeł DEA (dea02)</description>
+    </change>
+    <change version="14.0" date="2026-04-02">
+      <section>packetData</section>
+      <description>Zmiana zakresu adresów DNS</description>
+    </change>
+  </changeHistory>
+
+</ir21>

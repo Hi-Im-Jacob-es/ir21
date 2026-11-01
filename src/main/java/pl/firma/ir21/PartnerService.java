@@ -6,13 +6,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service 
 public class PartnerService {
   
   private final PartnerRepository repo;
+  private final ContactRepository contactRepo;
 
-  public PartnerService(PartnerRepository repo) {
+  public PartnerService(PartnerRepository repo, ContactRepository contactRepo) {
     this.repo = repo;
+    this.contactRepo = contactRepo;
   }
 
   public List<Partner> getAll() {
@@ -37,10 +41,23 @@ public class PartnerService {
     repo.delete(partner);
   }
 
-  public Partner update(String mccMnc, PartnerRequest req) {
-    Partner partner = getByMccMnc(mccMnc);
-    partner.setName(req.name());
-    return repo.save(partner);
-  }
+  @Transactional(readOnly = true)
+    public List<Contact> getContacts(String mccMnc) {
+        return List.copyOf(getByMccMnc(mccMnc).getContacts());
+    }
+
+    @Transactional
+    public Contact addContact(String mccMnc, ContactRequest req) {
+        Partner partner = getByMccMnc(mccMnc);
+        Contact contact = new Contact(req.type(), req.name(), req.email(), req.phone());
+        partner.addContact(contact);
+        return contactRepo.save(contact);
+    }
+
+    public Partner update(String mccMnc, PartnerRequest req) {
+        Partner partner = getByMccMnc(mccMnc);
+        partner.setName(req.name());
+        return repo.save(partner);
+    }
 
 }

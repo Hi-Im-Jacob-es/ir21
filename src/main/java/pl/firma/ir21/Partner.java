@@ -1,8 +1,15 @@
 package pl.firma.ir21;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 @Entity 
 public class Partner {
@@ -13,6 +20,10 @@ public class Partner {
 
   private String name;
   private String mccMnc;
+
+  @JsonIgnore 
+  @OneToMany(mappedBy = "partner",cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Contact> contacts = new ArrayList<>();
 
   protected Partner() {
 
@@ -37,6 +48,15 @@ public class Partner {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public void addContact(Contact contact) {
+    contacts.add(contact);
+    contact.setPartner(this);
+  }
+
+  public List<Contact> getContacts() {
+    return contacts;
   }
 
 }

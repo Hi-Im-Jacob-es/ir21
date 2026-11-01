@@ -7,6 +7,7 @@
   --akcent: #1f6feb;
   --zielony: #1a7f37;
   --czerwony: #c62828;
+  --wybrany: #eaf2ff;
 }
 * {
   box-sizing: border-box;
@@ -46,8 +47,24 @@ h2 {
   margin: 0 0 14px;
   font-size: 1.1rem;
 }
+h3 {
+  margin: 20px 0 10px;
+  font-size: 0.95rem;
+}
 
-/* formularz dodawania */
+/* nagłówek sekcji z przyciskiem po prawej */
+.naglowek-sekcji {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.naglowek-sekcji h2 {
+  margin: 0;
+}
+
+/* formularze */
 form {
   display: flex;
   gap: 10px;
@@ -61,15 +78,18 @@ label {
   font-size: 0.85rem;
   color: var(--szary);
 }
-input {
+input,
+select {
   padding: 8px 10px;
   border: 1px solid var(--linia);
   border-radius: 6px;
   font: inherit;
   color: var(--tekst);
+  background: #fff;
   min-width: 180px;
 }
-input:focus {
+input:focus,
+select:focus {
   outline: 2px solid var(--akcent);
   border-color: transparent;
 }
@@ -105,7 +125,7 @@ button {
   background: #fdecec;
 }
 
-/* tabela */
+/* tabele */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -129,6 +149,9 @@ td.akcje {
 td.akcje button {
   margin-left: 6px;
 }
+tr.wybrany td {
+  background: var(--wybrany);
+}
 .pusto {
   color: var(--szary);
   text-align: center;
@@ -136,6 +159,33 @@ td.akcje button {
 }
 code {
   font-family: ui-monospace, Consolas, monospace;
+}
+a {
+  color: var(--akcent);
+}
+
+/* etykieta typu kontaktu */
+.typ {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--tlo);
+  color: var(--szary);
+  white-space: nowrap;
+}
+.typ.NOC_24x7 {
+  background: #eaf2ff;
+  color: #1f4fae;
+}
+.typ.ESCALATION {
+  background: #fff4e0;
+  color: #8a5300;
+}
+.typ.FRAUD {
+  background: #fdecec;
+  color: var(--czerwony);
 }
 
 /* komunikat po akcji */
@@ -188,7 +238,8 @@ code {
 }
 
 @media (max-width: 600px) {
-  input {
+  input,
+  select {
     min-width: 0;
     width: 100%;
   }
@@ -198,5 +249,9 @@ code {
   th:first-child,
   td:first-child {
     display: none;
+  }
+  #sekcjaKontakty th:first-child,
+  #sekcjaKontakty td:first-child {
+    display: table-cell;
   }
 }

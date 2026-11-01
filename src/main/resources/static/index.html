@@ -36,13 +36,50 @@
     </table>
   </section>
 
+  <!-- Sekcja kontaktów: ukryta, dopóki nie wybierzesz partnera -->
+  <section class="karta" id="sekcjaKontakty" hidden>
+    <div class="naglowek-sekcji">
+      <h2>Kontakty: <span id="kontaktyPartner"></span></h2>
+      <button type="button" class="zwykly" id="zamknijKontakty">Zamknij</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Typ</th><th>Nazwa</th><th>E-mail</th><th>Telefon</th></tr>
+      </thead>
+      <tbody id="tabelaKontaktow"></tbody>
+    </table>
+
+    <h3>Dodaj kontakt</h3>
+    <form id="formularzKontaktu">
+      <label>Typ
+        <select id="kontaktTyp" required>
+          <option value="NOC_24x7">NOC 24/7</option>
+          <option value="ROAMING_COORDINATOR">Koordynator roamingu</option>
+          <option value="ESCALATION">Eskalacja</option>
+          <option value="IREG_TESTING">Testy IREG</option>
+          <option value="FRAUD">Fraud</option>
+        </select>
+      </label>
+      <label>Nazwa
+        <input id="kontaktNazwa" required placeholder="np. NOC Orange">
+      </label>
+      <label>E-mail
+        <input id="kontaktEmail" type="email" placeholder="noc@example.com">
+      </label>
+      <label>Telefon
+        <input id="kontaktTelefon" placeholder="+48 500 000 000">
+      </label>
+      <button type="submit" class="glowny">Dodaj kontakt</button>
+    </form>
+  </section>
+
   <section class="karta">
     <h2>Zapytania do backendu</h2>
     <ul id="log"></ul>
   </section>
-
 </main>
 
-  <script src="js/script.js"></script>
+<script src="js/script.js"></script>
 </body>
 </html>

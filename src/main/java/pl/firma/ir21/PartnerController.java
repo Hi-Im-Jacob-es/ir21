@@ -53,12 +53,10 @@ public class PartnerController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable String mccMnc) {
         service.deleteByMccMnc(mccMnc); 
-      }
+    }
 
     @PutMapping("/{mccMnc}")  
     public Partner update(@PathVariable String mccMnc, @RequestBody PartnerRequest req) {
         return service.update(mccMnc, req);
     }
-
-    
 }
